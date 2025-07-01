@@ -1,0 +1,23 @@
+# CodeRabbit configuration
+reviews:
+  auto_review: true
+  draft_pr: false
+  
+language: ja
+
+rules:
+  - path: "**/*.ts"
+    reviewers: auto
+  - path: "**/*.tsx"
+    reviewers: auto
+  - path: "**/*.js"
+    reviewers: auto
+  - path: "**/*.jsx"
+    reviewers: auto
+
+ignore:
+  - "node_modules/**"
+  - ".next/**"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
