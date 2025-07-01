@@ -1,8 +1,11 @@
 import { getTournament } from "@/lib/actions/tournaments";
+import { generateTournamentBracket, getMatches } from "@/lib/actions/matches";
+import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TournamentBracket } from "@/components/tournament/tournament-bracket";
 import { 
   Trophy, 
   Users, 
@@ -61,10 +64,26 @@ function formatDate(dateString: string | null) {
 
 export default async function TournamentDetailPage({ params }: Props) {
   let tournament: Tournament | null = null;
+  let matches: any[] = [];
   let error: string | null = null;
+  let isOrganizer = false;
 
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
     tournament = await getTournament(params.id) as Tournament;
+    
+    if (user && tournament.organizer?.username === user.email?.split('@')[0]) {
+      isOrganizer = true;
+    }
+
+    try {
+      matches = await getMatches(params.id);
+    } catch (matchError) {
+      // Matches might not exist yet, that's okay
+      matches = [];
+    }
   } catch (e) {
     error = e instanceof Error ? e.message : "大会の取得に失敗しました";
   }
@@ -167,6 +186,7 @@ export default async function TournamentDetailPage({ params }: Props) {
         <TabsList>
           <TabsTrigger value="overview">概要</TabsTrigger>
           <TabsTrigger value="participants">参加者</TabsTrigger>
+          <TabsTrigger value="bracket">トーナメント表</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -232,6 +252,47 @@ export default async function TournamentDetailPage({ params }: Props) {
                     </div>
                   ))}
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="bracket">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>トーナメント表</CardTitle>
+                  <CardDescription>
+                    大会の対戦表と試合結果
+                  </CardDescription>
+                </div>
+                {isOrganizer && matches.length === 0 && tournament.participants.length >= 2 && (
+                  <form action={generateTournamentBracket.bind(null, tournament.id)}>
+                    <Button type="submit">
+                      <Play className="h-4 w-4 mr-2" />
+                      トーナメント表を生成
+                    </Button>
+                  </form>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {matches.length === 0 ? (
+                <div className="text-center py-12">
+                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">トーナメント表</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {tournament.participants.length < 2
+                      ? "参加者が2名以上必要です"
+                      : isOrganizer
+                      ? "トーナメント表を生成してください"
+                      : "主催者がトーナメント表を生成するまでお待ちください"
+                    }
+                  </p>
+                </div>
+              ) : (
+                <TournamentBracket matches={matches} isOrganizer={isOrganizer} />
               )}
             </CardContent>
           </Card>
