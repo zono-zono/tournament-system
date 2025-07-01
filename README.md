@@ -1,105 +1,87 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Tournament System
 
 <p align="center">
- The fastest way to build apps with Next.js and Supabase
+  <strong>シンプルで効率的なトーナメント管理システム</strong>
 </p>
 
 <p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
+  Next.js と Supabase で構築された現代的なトーナメント運営プラットフォーム
 </p>
+
 <br/>
 
-## Features
+## 主な機能
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- **大会作成・管理**: 直感的なインターフェースで大会の作成・管理
+- **参加者登録**: ユーザーが簡単に大会に参加登録
+- **トーナメント表生成**: シングルエリミネーション形式の自動対戦表生成
+- **試合結果管理**: リアルタイムでの試合結果入力・管理
+- **認証システム**: Supabase認証による安全なユーザー管理
+- **レスポンシブデザイン**: モバイル・デスクトップ対応
 
-## Demo
+## 技術スタック
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **Frontend**: Next.js 15 (App Router), React 18, TypeScript
+- **UI**: Tailwind CSS, shadcn/ui, Radix UI
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
+- **Deployment**: Vercel
 
-## Deploy to Vercel
+## データベース設計
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### 主要テーブル
+- `tournaments`: 大会情報（名前、説明、開催日、ステータス等）
+- `participants`: 参加者情報（大会への参加登録）
+- `matches`: 試合情報（対戦相手、結果、ラウンド等）
+- `users`: ユーザー情報（Supabase認証と連携）
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+## 開発環境のセットアップ
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+1. リポジトリをクローン
+```bash
+git clone https://github.com/zono-zono/tournament-system.git
+cd tournament-system
+```
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+2. 依存関係をインストール
+```bash
+npm install
+```
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+3. 環境変数を設定
+```bash
+cp .env.example .env.local
+# .env.localでSupabaseの設定を更新
+```
 
-## Clone and run locally
+4. 開発サーバーを起動
+```bash
+npm run dev
+```
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+5. ブラウザで http://localhost:3000 にアクセス
 
-2. Create a Next.js app using the Supabase Starter template npx command
+## Supabaseの設定
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+1. [Supabase Dashboard](https://database.new) でプロジェクトを作成
+2. プロジェクトのAPI設定から以下を取得：
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. `supabase/migrations/001_initial_schema.sql` のマイグレーションを実行
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+## 今後の機能拡張予定
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+- [ ] ダブルエリミネーション形式のサポート
+- [ ] 総当たり戦（ラウンドロビン）のサポート  
+- [ ] チーム戦機能
+- [ ] 通知機能（メール・LINE）
+- [ ] 詳細な統計・レポート機能
+- [ ] 大会のライブ配信連携
+- [ ] モバイルアプリ対応
 
-3. Use `cd` to change into the app's directory
+## 貢献
 
-   ```bash
-   cd with-supabase-app
-   ```
+プルリクエストやイシューの報告を歓迎します。
 
-4. Rename `.env.example` to `.env.local` and update the following:
+## ライセンス
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
-
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
-
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+MIT License
