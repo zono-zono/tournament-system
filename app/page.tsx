@@ -16,6 +16,14 @@ export default function Home() {
               <Trophy className="h-6 w-6" />
               <span className="text-xl">大会管理システム</span>
             </Link>
+            <nav className="flex gap-4 ml-8">
+              <Link href="/tournaments" className="text-sm hover:text-primary transition-colors">
+                大会一覧
+              </Link>
+              <Link href="/dashboard" className="text-sm hover:text-primary transition-colors">
+                ダッシュボード
+              </Link>
+            </nav>
           </div>
           <AuthButton />
         </div>
@@ -38,10 +46,10 @@ export default function Home() {
           
           <div className="flex gap-4 justify-center">
             <Button asChild size="lg">
-              <Link href="/auth/sign-up">今すぐ始める</Link>
+              <Link href="/tournaments">大会を見る</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/demo">デモを見る</Link>
+              <Link href="/dashboard">ダッシュボード</Link>
             </Button>
           </div>
         </div>
