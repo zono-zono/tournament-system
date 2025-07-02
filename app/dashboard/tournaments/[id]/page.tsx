@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const runtime = 'edge';
+
 type Tournament = {
   id: string;
   name: string;
@@ -61,6 +63,10 @@ function formatDate(dateString: string | null) {
     day: "numeric",
   });
 }
+
+type Props = {
+  params: { id: string };
+};
 
 export default async function TournamentDetailPage({ params }: Props) {
   let tournament: Tournament | null = null;

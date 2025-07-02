@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Trophy, Users, Calendar } from "lucide-react";
 import Link from "next/link";
 
+export const runtime = 'edge';
+
 type Tournament = {
   id: string;
   name: string;

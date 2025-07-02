@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+export const runtime = 'edge';
+
 export default function NewTournamentPage() {
   return (
     <div className="space-y-6">

@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { Trophy, Users, Calendar, Star } from "lucide-react";
 
+export const runtime = 'edge';
+
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">

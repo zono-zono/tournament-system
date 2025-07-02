@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Plus, Trophy, Users, Calendar, Settings } from "lucide-react";
 
+export const runtime = 'edge';
+
 export default async function Dashboard() {
   let user = null;
   let profile = null;
