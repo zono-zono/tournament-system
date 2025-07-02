@@ -1,0 +1,6 @@
+name = "tournament-system"
+compatibility_date = "2024-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "tournament-system"
