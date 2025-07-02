@@ -12,7 +12,7 @@ Cloudflare Pages プロジェクトの **「設定」 > 「ビルド & デプロ
 
 ```
 フレームワーク: Next.js
-ビルドコマンド: npm run build
+ビルドコマンド: npm run pages:build
 出力ディレクトリ: .vercel/output
 Node.js バージョン: 18
 ```

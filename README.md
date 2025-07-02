@@ -82,7 +82,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 Cloudflare Pages ダッシュボードで以下のように設定してください：
 
 - **フレームワーク**: Next.js
-- **ビルドコマンド**: `npm run build`
+- **ビルドコマンド**: `npm run pages:build`
 - **出力ディレクトリ**: `.vercel/output` ⚠️ 重要: `/static` は付けない
 - **Node.js バージョン**: 18
 
