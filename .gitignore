@@ -40,3 +40,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Cloudflare Pages
+.wrangler/
+.dev.vars
+dist/
+
+# Cache directories
+.next/cache/
