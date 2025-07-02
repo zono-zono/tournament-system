@@ -24,7 +24,7 @@
 - **Frontend**: Next.js 15 (App Router), React 18, TypeScript
 - **UI**: Tailwind CSS, shadcn/ui, Radix UI
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **Deployment**: Vercel
+- **Deployment**: Cloudflare Pages
 
 ## データベース設計
 
@@ -67,6 +67,21 @@ npm run dev
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. `supabase/migrations/001_initial_schema.sql` のマイグレーションを実行
+
+## Cloudflare Pages デプロイ
+
+### 環境変数の設定
+Cloudflare Pages ダッシュボードで以下の環境変数を設定してください：
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://kldspkowaezkyiqwdsht.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZHNwa293YWV6a3lpcXdkc2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNzc1MTEsImV4cCI6MjA2Njg1MzUxMX0.VB4C2BeC8iIVNaEDhDNTYqL3At1MgEkTJGGOSDxZVE0
+```
+
+### ビルド設定
+- **フレームワーク**: Next.js
+- **ビルドコマンド**: `npm run pages:build`
+- **出力ディレクトリ**: `.vercel/output/static`
 
 ## 今後の機能拡張予定
 

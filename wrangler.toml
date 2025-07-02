@@ -8,3 +8,5 @@ cwd = "."
 
 [build.environment_variables]
 NODE_VERSION = "18"
+
+pages_build_output_dir = ".vercel/output/static"
