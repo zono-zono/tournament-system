@@ -11,9 +11,19 @@ export default function TestDbPage() {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const supabase = createClient();
+  // 環境変数チェック
+  const hasSupabaseConfig = 
+    process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const supabase = hasSupabaseConfig ? createClient() : null;
 
   const testDatabaseConnection = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     setIsLoading(true);
     setStatus("データベース接続テスト中...");
     
@@ -39,6 +49,11 @@ export default function TestDbPage() {
   };
 
   const testInsertData = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     if (!tournamentName.trim()) {
       setStatus("❌ 大会名を入力してください");
       return;
@@ -76,6 +91,11 @@ export default function TestDbPage() {
   };
 
   const testSelectData = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     setIsLoading(true);
     setStatus("データ取得テスト中...");
     
@@ -117,16 +137,34 @@ export default function TestDbPage() {
           </div>
           
           <div className="grid grid-cols-1 gap-2">
-            <Button onClick={testDatabaseConnection} disabled={isLoading}>
+            <Button 
+              onClick={testDatabaseConnection} 
+              disabled={isLoading || !hasSupabaseConfig}
+            >
               データベース接続テスト
             </Button>
-            <Button onClick={testSelectData} disabled={isLoading}>
+            <Button 
+              onClick={testSelectData} 
+              disabled={isLoading || !hasSupabaseConfig}
+            >
               データ取得テスト
             </Button>
-            <Button onClick={testInsertData} disabled={isLoading} variant="outline">
+            <Button 
+              onClick={testInsertData} 
+              disabled={isLoading || !hasSupabaseConfig} 
+              variant="outline"
+            >
               データ挿入テスト（要注意：RLS適用）
             </Button>
           </div>
+
+          {!hasSupabaseConfig && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                ⚠️ Supabase環境変数が設定されていません。デプロイ環境では正常に動作しません。
+              </p>
+            </div>
+          )}
 
           {status && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
