@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Disable webpack cache for Cloudflare Pages
+  webpack: (config, { isServer }) => {
+    config.cache = false;
+    return config;
+  },
 };
 
 export default nextConfig;
