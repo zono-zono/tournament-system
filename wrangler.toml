@@ -1,7 +1,11 @@
 name = "tournament-system"
 compatibility_date = "2024-07-01"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".next"
+pages_build_output_dir = ".vercel/output/static"
+
+[[pages_builds]]
+command = "npm run pages:build"
+pages_build_output_dir = ".vercel/output/static"
 
 [env.production]
 name = "tournament-system"
