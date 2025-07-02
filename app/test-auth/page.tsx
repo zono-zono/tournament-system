@@ -12,9 +12,19 @@ export default function TestAuthPage() {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const supabase = createClient();
+  // 環境変数チェック
+  const hasSupabaseConfig = 
+    process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const supabase = hasSupabaseConfig ? createClient() : null;
 
   const testConnection = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     setIsLoading(true);
     setStatus("接続テスト中...");
     
@@ -57,6 +67,11 @@ export default function TestAuthPage() {
   };
 
   const testSignUp = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     if (!email || !password) {
       setStatus("❌ メールアドレスとパスワードを入力してください");
       return;
@@ -110,6 +125,11 @@ export default function TestAuthPage() {
   };
 
   const testSignIn = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     if (!email || !password) {
       setStatus("❌ メールアドレスとパスワードを入力してください");
       return;
@@ -137,6 +157,11 @@ export default function TestAuthPage() {
   };
 
   const signOut = async () => {
+    if (!supabase) {
+      setStatus("❌ Supabase設定が不完全です");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await supabase.auth.signOut();
@@ -171,19 +196,40 @@ export default function TestAuthPage() {
           </div>
           
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={testConnection} disabled={isLoading}>
+            <Button 
+              onClick={testConnection} 
+              disabled={isLoading || !hasSupabaseConfig}
+            >
               接続テスト
             </Button>
-            <Button onClick={testSignUp} disabled={isLoading}>
+            <Button 
+              onClick={testSignUp} 
+              disabled={isLoading || !hasSupabaseConfig}
+            >
               サインアップ
             </Button>
-            <Button onClick={testSignIn} disabled={isLoading}>
+            <Button 
+              onClick={testSignIn} 
+              disabled={isLoading || !hasSupabaseConfig}
+            >
               サインイン
             </Button>
-            <Button onClick={signOut} disabled={isLoading} variant="outline">
+            <Button 
+              onClick={signOut} 
+              disabled={isLoading || !hasSupabaseConfig} 
+              variant="outline"
+            >
               サインアウト
             </Button>
           </div>
+
+          {!hasSupabaseConfig && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                ⚠️ Supabase環境変数が設定されていません。デプロイ環境では正常に動作しません。
+              </p>
+            </div>
+          )}
 
           {status && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
