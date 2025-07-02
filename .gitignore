@@ -48,3 +48,4 @@ dist/
 
 # Cache directories
 .next/cache/
+cache/
