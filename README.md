@@ -79,9 +79,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 ```
 
 ### ビルド設定
+Cloudflare Pages ダッシュボードで以下のように設定してください：
+
 - **フレームワーク**: Next.js
-- **ビルドコマンド**: `npm run pages:build`
-- **出力ディレクトリ**: `.vercel/output/static`
+- **ビルドコマンド**: `npm run build`
+- **出力ディレクトリ**: `.vercel/output` ⚠️ 重要: `/static` は付けない
+- **Node.js バージョン**: 18
+
+⚠️ **最重要**: 出力ディレクトリは必ず `.vercel/output` を指定してください。`.vercel/output/static` ではありません。これにより静的ファイルとサーバーレス関数の両方が正しくデプロイされます。
 
 ## 今後の機能拡張予定
 
