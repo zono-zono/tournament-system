@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   // Disable webpack cache for Cloudflare Pages
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.cache = false;
     return config;
   },
