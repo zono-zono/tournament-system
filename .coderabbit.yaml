@@ -1,14 +1,21 @@
 # CodeRabbit configuration
+language: ja
+
 reviews:
   auto_review: true
   draft_pr: false
-  
-language: ja
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_empty_sections: false
+
+chat:
+  auto_reply: true
 
 rules:
   - path: "**/*.ts"
     reviewers: auto
-  - path: "**/*.tsx"
+  - path: "**/*.tsx" 
     reviewers: auto
   - path: "**/*.js"
     reviewers: auto
@@ -18,6 +25,12 @@ rules:
 ignore:
   - "node_modules/**"
   - ".next/**"
-  - "dist/**"
+  - "dist/**" 
   - "build/**"
   - "coverage/**"
+  - "*.lock"
+  - "package-lock.json"
+
+base_branches:
+  - main
+  - master
