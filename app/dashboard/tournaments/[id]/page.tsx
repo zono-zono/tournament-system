@@ -126,71 +126,73 @@ export default async function TournamentDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/dashboard/tournaments">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              戻る
-            </Link>
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{tournament.name}</h1>
-              <Badge variant={getStatusColor(tournament.status)}>
-                {getStatusText(tournament.status)}
-              </Badge>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/tournaments">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                戻る
+              </Link>
+            </Button>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                <h1 className="text-lg md:text-3xl font-bold tracking-tight truncate">{tournament.name}</h1>
+                <Badge variant={getStatusColor(tournament.status)}>
+                  {getStatusText(tournament.status)}
+                </Badge>
+              </div>
+              {tournament.description && (
+                <p className="text-sm md:text-base text-muted-foreground mt-1 line-clamp-2">{tournament.description}</p>
+              )}
             </div>
-            {tournament.description && (
-              <p className="text-muted-foreground mt-1">{tournament.description}</p>
-            )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/dashboard/tournaments/${tournament.id}/edit`}>
-              <Edit className="h-4 w-4 mr-2" />
-              編集
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/dashboard/tournaments/${tournament.id}/edit`}>
+                <Edit className="h-4 w-4 mr-2" />
+                編集
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">参加者数</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">参加者数</CardTitle>
+            <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tournament.participants.length}</div>
+          <CardContent className="pb-3 md:pb-6">
+            <div className="text-lg md:text-2xl font-bold">{tournament.participants.length}</div>
             <p className="text-xs text-muted-foreground">登録済み</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">開催日</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">開催日</CardTitle>
+            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">{formatDate(tournament.start_date)}</div>
+          <CardContent className="pb-3 md:pb-6">
+            <div className="text-base md:text-lg font-bold">{formatDate(tournament.start_date)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">作成日</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">作成日</CardTitle>
+            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">{formatDate(tournament.created_at)}</div>
+          <CardContent className="pb-3 md:pb-6">
+            <div className="text-base md:text-lg font-bold">{formatDate(tournament.created_at)}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Detailed Information */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 text-xs md:text-sm">
           <TabsTrigger value="overview">概要</TabsTrigger>
           <TabsTrigger value="participants">参加者</TabsTrigger>
           <TabsTrigger value="bracket">トーナメント表</TabsTrigger>
@@ -247,16 +249,16 @@ export default async function TournamentDetailPage({ params }: Props) {
                   <p className="text-muted-foreground">まだ参加者がいません</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {tournament.participants.map((participant) => (
-                    <div key={participant.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{participant.user?.username || "不明"}</p>
+                    <div key={participant.id} className="flex items-center justify-between p-2 md:p-3 border rounded-lg">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm md:text-base truncate">{participant.user?.username || "不明"}</p>
                         {participant.seed && (
-                          <p className="text-sm text-muted-foreground">シード: {participant.seed}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground">シード: {participant.seed}</p>
                         )}
                       </div>
-                      <Badge variant="outline">参加中</Badge>
+                      <Badge variant="outline" className="text-xs flex-shrink-0">参加中</Badge>
                     </div>
                   ))}
                 </div>
