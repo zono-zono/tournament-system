@@ -8,6 +8,18 @@ reviews:
   poem: false
   review_status: true
   collapse_empty_sections: false
+  request_changes_workflow: true
+  enable_free_tier: true
+
+# Language and output settings
+output:
+  language: "ja-JP"
+  locale: "ja-JP"
+
+# VSCode extension specific settings
+vscode:
+  language: "ja-JP"
+  comments_language: "ja-JP"
 
 chat:
   auto_reply: true
