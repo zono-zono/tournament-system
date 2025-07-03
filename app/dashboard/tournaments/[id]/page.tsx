@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentBracketManager } from "@/components/tournament-bracket-manager";
+import { TournamentProgress } from "@/components/tournament-progress";
 import { 
   Trophy, 
   Users, 
@@ -193,6 +194,7 @@ export default async function TournamentDetailPage({ params }: Props) {
           <TabsTrigger value="overview">概要</TabsTrigger>
           <TabsTrigger value="participants">参加者</TabsTrigger>
           <TabsTrigger value="bracket">トーナメント表</TabsTrigger>
+          {matches.length > 0 && <TabsTrigger value="progress">進行状況</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview">
@@ -298,10 +300,21 @@ export default async function TournamentDetailPage({ params }: Props) {
                   </p>
                 </div>
               ) : (
-                <TournamentBracketManager matches={matches} isOrganizer={isOrganizer} />
+                <TournamentBracketManager 
+                  tournamentId={tournament.id}
+                  initialMatches={matches} 
+                  isOrganizer={isOrganizer} 
+                />
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="progress">
+          <TournamentProgress 
+            matches={matches} 
+            totalParticipants={tournament.participants.length}
+          />
         </TabsContent>
       </Tabs>
     </div>
