@@ -51,59 +51,59 @@ export function TournamentBracket({
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="inline-flex gap-8 p-4 min-w-max">
+      <div className="inline-flex gap-4 md:gap-8 p-2 md:p-4 min-w-max">
         {Array.from({ length: rounds }, (_, roundIndex) => {
           const round = roundIndex + 1;
           const roundMatches = getRoundMatches(round);
           
           return (
             <div key={round} className="flex flex-col items-center">
-              <h3 className="text-lg font-semibold mb-4 text-center">
+              <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-4 text-center">
                 {round === rounds ? '決勝' : `${round}回戦`}
               </h3>
               
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2 md:gap-4">
                 {roundMatches.map((match, index) => (
                   <Card
                     key={match.id}
                     className={cn(
-                      "w-64 cursor-pointer transition-all hover:shadow-md",
+                      "w-52 md:w-64 cursor-pointer transition-all hover:shadow-md",
                       getMatchStatusColor(match.status),
                       isEditable && "hover:scale-105"
                     )}
                     onClick={() => isEditable && onMatchClick?.(match)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm font-medium text-gray-600">
+                    <CardContent className="p-2 md:p-4">
+                      <div className="flex justify-between items-center mb-2 md:mb-3">
+                        <span className="text-xs md:text-sm font-medium text-gray-600">
                           第{match.matchNumber}試合
                         </span>
                         {getStatusBadge(match.status)}
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-1 md:space-y-2">
                         {/* Player 1 */}
                         <div className={cn(
-                          "flex justify-between items-center p-2 rounded",
+                          "flex justify-between items-center p-1 md:p-2 rounded",
                           match.winner?.id === match.player1?.id 
                             ? "bg-green-100 border border-green-200" 
                             : "bg-gray-50"
                         )}>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 md:gap-2 min-w-0">
                             {match.player1?.seed && (
-                              <span className="text-xs bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center">
+                              <span className="text-xs bg-gray-200 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center flex-shrink-0">
                                 {match.player1.seed}
                               </span>
                             )}
                             <span className={cn(
-                              "text-sm",
+                              "text-xs md:text-sm truncate",
                               match.winner?.id === match.player1?.id ? "font-semibold" : ""
                             )}>
                               {match.player1?.name || '待機中'}
                             </span>
                           </div>
                           {match.player1Score !== undefined && (
-                            <span className="text-sm font-mono">
+                            <span className="text-xs md:text-sm font-mono flex-shrink-0">
                               {match.player1Score}
                             </span>
                           )}
@@ -116,26 +116,26 @@ export function TournamentBracket({
                         
                         {/* Player 2 */}
                         <div className={cn(
-                          "flex justify-between items-center p-2 rounded",
+                          "flex justify-between items-center p-1 md:p-2 rounded",
                           match.winner?.id === match.player2?.id 
                             ? "bg-green-100 border border-green-200" 
                             : "bg-gray-50"
                         )}>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 md:gap-2 min-w-0">
                             {match.player2?.seed && (
-                              <span className="text-xs bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center">
+                              <span className="text-xs bg-gray-200 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center flex-shrink-0">
                                 {match.player2.seed}
                               </span>
                             )}
                             <span className={cn(
-                              "text-sm",
+                              "text-xs md:text-sm truncate",
                               match.winner?.id === match.player2?.id ? "font-semibold" : ""
                             )}>
                               {match.player2?.name || '待機中'}
                             </span>
                           </div>
                           {match.player2Score !== undefined && (
-                            <span className="text-sm font-mono">
+                            <span className="text-xs md:text-sm font-mono flex-shrink-0">
                               {match.player2Score}
                             </span>
                           )}
@@ -143,8 +143,13 @@ export function TournamentBracket({
                       </div>
                       
                       {match.scheduledAt && (
-                        <div className="mt-3 text-xs text-gray-500 text-center">
-                          予定: {new Date(match.scheduledAt).toLocaleString('ja-JP')}
+                        <div className="mt-2 md:mt-3 text-xs text-gray-500 text-center">
+                          予定: {new Date(match.scheduledAt).toLocaleString('ja-JP', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </div>
                       )}
                       
@@ -152,7 +157,7 @@ export function TournamentBracket({
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full mt-3"
+                          className="w-full mt-2 md:mt-3 text-xs md:text-sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             onMatchClick?.(match);

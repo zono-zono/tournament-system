@@ -3,24 +3,35 @@
 import { useState } from "react";
 import { TournamentBracket } from "@/components/tournament-bracket";
 import { MatchResultDialog } from "@/components/match-result-dialog";
+import { RealtimeConnectionStatus } from "@/components/realtime-connection-status";
+import { PageLoading } from "@/components/page-loading";
 import { BracketMatch } from "@/lib/tournament-bracket";
 import { updateMatchResult } from "@/lib/actions/matches";
+import { useRealtimeMatches } from "@/hooks/use-realtime-matches";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface TournamentBracketManagerProps {
-  matches: any[];
+  tournamentId: string;
+  initialMatches: any[];
   isOrganizer: boolean;
 }
 
 export function TournamentBracketManager({ 
-  matches, 
+  tournamentId,
+  initialMatches, 
   isOrganizer 
 }: TournamentBracketManagerProps) {
   const [selectedMatch, setSelectedMatch] = useState<BracketMatch | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
+
+  // リアルタイム更新を使用
+  const { matches, isConnected, error } = useRealtimeMatches({
+    tournamentId,
+    initialMatches
+  });
 
   // データベースの試合データをBracketMatch形式に変換
   const convertToBracketMatches = (dbMatches: any[]): BracketMatch[] => {
@@ -68,7 +79,7 @@ export function TournamentBracketManager({
     try {
       await updateMatchResult(selectedMatch.id, winnerId, player1Score, player2Score);
       toast.success("試合結果を更新しました");
-      router.refresh();
+      // リアルタイム更新があるため、router.refresh()は不要
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "エラーが発生しました");
     } finally {
@@ -76,20 +87,44 @@ export function TournamentBracketManager({
     }
   };
 
+  if (matches.length === 0) {
+    return <PageLoading message="トーナメントデータを読み込み中..." />;
+  }
+
   return (
-    <>
+    <div className="space-y-4">
+      {/* リアルタイム接続状態の表示 */}
+      <div className="flex justify-between items-center">
+        <RealtimeConnectionStatus 
+          isConnected={isConnected} 
+          error={error}
+          className="text-xs"
+        />
+        {error && (
+          <p className="text-xs text-red-600">{error}</p>
+        )}
+      </div>
+
+      {isUpdating && (
+        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <PageLoading message="試合結果を更新中..." />
+        </div>
+      )}
+
       <TournamentBracket
         matches={bracketMatches}
         rounds={rounds}
-        isEditable={isOrganizer}
+        isEditable={isOrganizer && !isUpdating}
         onMatchClick={handleMatchClick}
       />
+      
       <MatchResultDialog
         match={selectedMatch}
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onSave={handleSaveResult}
+        isLoading={isUpdating}
       />
-    </>
+    </div>
   );
 }

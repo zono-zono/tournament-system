@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { LoadingButton } from "@/components/loading-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,13 +20,15 @@ interface MatchResultDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (winnerId: string, player1Score?: number, player2Score?: number) => void;
+  isLoading?: boolean;
 }
 
 export function MatchResultDialog({
   match,
   isOpen,
   onClose,
-  onSave
+  onSave,
+  isLoading = false
 }: MatchResultDialogProps) {
   const [winnerId, setWinnerId] = useState<string>("");
   const [player1Score, setPlayer1Score] = useState<string>("");
@@ -137,12 +140,17 @@ export function MatchResultDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             キャンセル
           </Button>
-          <Button onClick={handleSave} disabled={!winnerId}>
+          <LoadingButton 
+            onClick={handleSave} 
+            disabled={!winnerId}
+            loading={isLoading}
+            loadingText="保存中..."
+          >
             結果を保存
-          </Button>
+          </LoadingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

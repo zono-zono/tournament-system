@@ -8,16 +8,19 @@ import {
   Settings, 
   Home,
   LogOut,
-  Bell
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { NotificationBell } from "@/components/notification-bell";
+import { NotificationManager } from "@/components/notification-manager";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "ダッシュボード", href: "/dashboard", icon: Home },
   { name: "大会管理", href: "/dashboard/tournaments", icon: Trophy },
+  { name: "ファイル管理", href: "/dashboard/files", icon: FileText },
   { name: "参加者", href: "/dashboard/participants", icon: Users },
   { name: "スケジュール", href: "/dashboard/schedule", icon: Calendar },
   { name: "設定", href: "/dashboard/settings", icon: Settings },
@@ -125,14 +128,11 @@ export default async function DashboardLayout({
 
           {/* Footer */}
           <div className="border-t p-6 space-y-2">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="w-full justify-start">
-                <Bell className="h-4 w-4 mr-2" />
-                通知
-              </Button>
+            <div className="flex items-center justify-between">
+              <ThemeSwitcher />
+              <NotificationBell userId={user?.id || ""} />
             </div>
             <div className="flex items-center gap-2">
-              <ThemeSwitcher />
               <form action={handleSignOut} className="flex-1">
                 <Button 
                   type="submit" 
@@ -154,6 +154,8 @@ export default async function DashboardLayout({
         <main className="py-6 px-6">
           {children}
         </main>
+        {/* 通知マネージャー */}
+        <NotificationManager userId={user?.id || ""} />
       </div>
     </div>
   );

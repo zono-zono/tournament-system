@@ -2,12 +2,15 @@
 language: "ja-JP"
 
 reviews:
-  auto_review: true
+  auto_review:
+    enabled: true
   draft_pr: false
   high_level_summary: true
   poem: false
   review_status: true
   collapse_empty_sections: false
+  request_changes_workflow: false
+  enable_free_tier: true
 
 chat:
   auto_reply: true
