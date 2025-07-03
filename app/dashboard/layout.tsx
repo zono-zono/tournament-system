@@ -7,7 +7,8 @@ import {
   Calendar, 
   Settings, 
   Home,
-  LogOut
+  LogOut,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "ダッシュボード", href: "/dashboard", icon: Home },
   { name: "大会管理", href: "/dashboard/tournaments", icon: Trophy },
+  { name: "ファイル管理", href: "/dashboard/files", icon: FileText },
   { name: "参加者", href: "/dashboard/participants", icon: Users },
   { name: "スケジュール", href: "/dashboard/schedule", icon: Calendar },
   { name: "設定", href: "/dashboard/settings", icon: Settings },
