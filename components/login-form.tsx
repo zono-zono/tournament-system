@@ -32,15 +32,26 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
 
+    console.log("Login attempt started", { email });
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
+      
+      console.log("Login response:", { data, error });
+      
+      if (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+      
+      console.log("Login successful, redirecting to dashboard");
       // 認証後はダッシュボードにリダイレクト
       router.push("/dashboard");
     } catch (error: unknown) {
+      console.error("Login catch error:", error);
       setError(error instanceof Error ? error.message : "エラーが発生しました");
     } finally {
       setIsLoading(false);
