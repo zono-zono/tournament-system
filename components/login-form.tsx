@@ -48,8 +48,8 @@ export function LoginForm({
       }
       
       console.log("Login successful, redirecting to dashboard");
-      // 認証後はダッシュボードにリダイレクト
-      router.push("/dashboard");
+      // 認証後はダッシュボードにリダイレクト（window.locationを使用）
+      window.location.href = "/dashboard";
     } catch (error: unknown) {
       console.error("Login catch error:", error);
       setError(error instanceof Error ? error.message : "エラーが発生しました");
