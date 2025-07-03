@@ -161,7 +161,12 @@ function generateSingleEliminationMatches(participants: any[], tournamentId: str
   return matches
 }
 
-export async function updateMatchResult(matchId: string, winnerId: string) {
+export async function updateMatchResult(
+  matchId: string, 
+  winnerId: string, 
+  player1Score?: number, 
+  player2Score?: number
+) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -197,7 +202,10 @@ export async function updateMatchResult(matchId: string, winnerId: string) {
     .from('matches')
     .update({
       winner_id: winnerId,
-      status: 'completed'
+      player1_score: player1Score || 0,
+      player2_score: player2Score || 0,
+      status: 'completed',
+      completed_at: new Date().toISOString()
     })
     .eq('id', matchId)
 
