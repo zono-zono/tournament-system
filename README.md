@@ -89,8 +89,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 開発用Cloudflare Pagesプロジェクトで以下の環境変数を設定してください：
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://your-dev-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-dev-anon-key
+NEXT_PUBLIC_SUPABASE_URL=https://dmbxwprpfvtvwiyktfkq.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtYnh3cHJwZnZ0dndpeWt0ZmtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1Mjk3MDQsImV4cCI6MjA2NzEwNTcwNH0.xQ-40SYPEeSUndss5DD08otzWR8oiI3UWPUFG9nHZmA
 ```
 
 #### 開発環境の作成手順
