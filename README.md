@@ -36,29 +36,34 @@
 
 ## 開発環境のセットアップ
 
-1. リポジトリをクローン
+### 開発ブランチの使用
 ```bash
-git clone https://github.com/zono-zono/tournament-system.git
+# 開発用ブランチをクローン
+git clone -b development https://github.com/zono-zono/tournament-system.git
 cd tournament-system
+
+# または既存のリポジトリで開発ブランチに切り替え
+git checkout development
 ```
 
-2. 依存関係をインストール
+### 依存関係のインストール
 ```bash
 npm install
 ```
 
-3. 環境変数を設定
+### 環境変数の設定
 ```bash
 cp .env.example .env.local
-# .env.localでSupabaseの設定を更新
+# .env.localで開発用Supabaseの設定を更新
 ```
 
-4. 開発サーバーを起動
+### 開発サーバーの起動
 ```bash
 npm run dev
 ```
 
-5. ブラウザで http://localhost:3000 にアクセス
+### ブラウザでアクセス
+http://localhost:3000 にアクセス
 
 ## Supabaseの設定
 
@@ -70,13 +75,29 @@ npm run dev
 
 ## Cloudflare Pages デプロイ
 
-### 環境変数の設定
+### 本番環境 (mainブランチ)
+#### 環境変数の設定
 Cloudflare Pages ダッシュボードで以下の環境変数を設定してください：
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://kldspkowaezkyiqwdsht.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZHNwa293YWV6a3lpcXdkc2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNzc1MTEsImV4cCI6MjA2Njg1MzUxMX0.VB4C2BeC8iIVNaEDhDNTYqL3At1MgEkTJGGOSDxZVE0
 ```
+
+### 開発環境 (developmentブランチ)
+#### 環境変数の設定
+開発用Cloudflare Pagesプロジェクトで以下の環境変数を設定してください：
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-dev-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-dev-anon-key
+```
+
+#### 開発環境の作成手順
+1. Cloudflare Pages ダッシュボードで新しいプロジェクトを作成
+2. 同じリポジトリを指定し、**developmentブランチ**を選択
+3. 開発用の環境変数を設定
+4. 開発用Supabaseプロジェクトを作成し、認証情報を設定
 
 ### ビルド設定
 Cloudflare Pages ダッシュボードで以下のように設定してください：
