@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/loading-button";
 import {
   Card,
   CardContent,
@@ -100,9 +100,14 @@ export function LoginForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "ログイン中..." : "ログイン"}
-              </Button>
+              <LoadingButton 
+                type="submit" 
+                className="w-full" 
+                loading={isLoading}
+                loadingText="ログイン中..."
+              >
+                ログイン
+              </LoadingButton>
             </div>
             <div className="mt-4 text-center text-sm">
               アカウントをお持ちでない方は{" "}
