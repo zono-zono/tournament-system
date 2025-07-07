@@ -200,7 +200,7 @@ export default async function TournamentsPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        参加者: {tournament.participants.length}名
+                        参加者: {tournament.participants?.length || 0}名
                       </div>
                       <div className="flex items-center gap-1">
                         主催者: {tournament.organizer?.username || "不明"}

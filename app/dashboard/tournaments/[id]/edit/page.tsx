@@ -8,15 +8,8 @@ type Tournament = {
   id: string;
   name: string;
   description: string | null;
-  status: "draft" | "published" | "ongoing" | "completed" | "cancelled";
+  status: "draft" | "ongoing" | "completed" | "cancelled";
   start_date: string | null;
-  end_date: string | null;
-  entry_start: string | null;
-  entry_end: string | null;
-  max_participants: number | null;
-  min_participants: number;
-  entry_fee: number;
-  venue: string | null;
 };
 
 interface Props {

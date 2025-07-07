@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getMatchesWithSchedule } from "@/lib/actions/schedule";
+import { ParticipantScheduleView } from "@/components/participant-schedule-view";
 import { 
   Trophy, 
   Users, 
@@ -31,7 +34,7 @@ type Tournament = {
 };
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 function getStatusColor(status: Tournament["status"]) {
@@ -93,20 +96,33 @@ async function TournamentJoinButton({ tournament, isParticipating }: {
 }
 
 export default async function PublicTournamentPage({ params }: Props) {
+  const { id } = await params;
   let tournament: Tournament | null = null;
   let error: string | null = null;
   let currentUser: any = null;
   let isParticipating = false;
+  let participantId: string | null = null;
+  let matchesWithSchedule: any[] = [];
 
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     currentUser = user;
 
-    tournament = await getTournament(params.id) as Tournament;
+    tournament = await getTournament(id) as Tournament;
 
     if (currentUser) {
-      isParticipating = tournament.participants.some(p => p.user?.username === currentUser.email?.split('@')[0]);
+      const participant = tournament.participants.find(p => p.user?.username === currentUser.email?.split('@')[0]);
+      isParticipating = !!participant;
+      participantId = participant?.id || null;
+      
+      // スケジュール情報付きの試合データを取得
+      if (isParticipating) {
+        const scheduleResult = await getMatchesWithSchedule(id);
+        if (scheduleResult.success) {
+          matchesWithSchedule = scheduleResult.matches;
+        }
+      }
     }
   } catch (e) {
     error = e instanceof Error ? e.message : "大会の取得に失敗しました";
@@ -194,42 +210,100 @@ export default async function PublicTournamentPage({ params }: Props) {
         </div>
       )}
 
-      {/* Participants List */}
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader>
-          <CardTitle>参加者一覧 ({tournament.participants.length}名)</CardTitle>
-          <CardDescription>
-            現在の参加者一覧です
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {tournament.participants.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">まだ参加者がいません</p>
-            </div>
-          ) : (
-            <div className="grid gap-3 md:grid-cols-2">
-              {tournament.participants.map((participant, index) => (
-                <div key={participant.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
-                      {index + 1}
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto">
+        {isParticipating && participantId && matchesWithSchedule.length > 0 ? (
+          <Tabs defaultValue="schedule" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="schedule">マイスケジュール</TabsTrigger>
+              <TabsTrigger value="participants">参加者一覧</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="schedule">
+              <ParticipantScheduleView 
+                matches={matchesWithSchedule}
+                participantId={participantId}
+                participantName={currentUser?.email?.split('@')[0] || ''}
+                tournamentName={tournament.name}
+              />
+            </TabsContent>
+
+            <TabsContent value="participants">
+              <Card>
+                <CardHeader>
+                  <CardTitle>参加者一覧 ({tournament.participants.length}名)</CardTitle>
+                  <CardDescription>
+                    現在の参加者一覧です
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {tournament.participants.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">まだ参加者がいません</p>
                     </div>
-                    <div>
-                      <p className="font-medium">{participant.user?.username || "不明"}</p>
-                      {participant.seed && (
-                        <p className="text-sm text-muted-foreground">シード: {participant.seed}</p>
-                      )}
+                  ) : (
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {tournament.participants.map((participant, index) => (
+                        <div key={participant.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <p className="font-medium">{participant.user?.username || "不明"}</p>
+                              {participant.seed && (
+                                <p className="text-sm text-muted-foreground">シード: {participant.seed}</p>
+                              )}
+                            </div>
+                          </div>
+                          <Badge variant="outline">参加中</Badge>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <Badge variant="outline">参加中</Badge>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>参加者一覧 ({tournament.participants.length}名)</CardTitle>
+              <CardDescription>
+                現在の参加者一覧です
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {tournament.participants.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">まだ参加者がいません</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {tournament.participants.map((participant, index) => (
+                    <div key={participant.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="font-medium">{participant.user?.username || "不明"}</p>
+                          {participant.seed && (
+                            <p className="text-sm text-muted-foreground">シード: {participant.seed}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Badge variant="outline">参加中</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

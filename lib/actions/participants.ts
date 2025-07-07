@@ -109,6 +109,69 @@ export async function updateParticipantSeed(participantId: string, seed: number)
   revalidatePath(`/dashboard/tournaments/${participant.tournament_id}`)
 }
 
+export async function addParticipantByOrganizer(tournamentId: string, username: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Authentication required')
+  }
+
+  // Check if current user is the organizer
+  const { data: tournament } = await supabase
+    .from('tournaments')
+    .select('organizer_id, status')
+    .eq('id', tournamentId)
+    .single()
+
+  if (!tournament || tournament.organizer_id !== user.id) {
+    throw new Error('Only tournament organizers can add participants')
+  }
+
+  if (tournament.status !== 'draft') {
+    throw new Error('Can only add participants to draft tournaments')
+  }
+
+  // Find user by username
+  const { data: targetUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('username', username)
+    .single()
+
+  if (!targetUser) {
+    throw new Error(`User with username "${username}" not found`)
+  }
+
+  // Check if user is already participating
+  const { data: existingParticipant } = await supabase
+    .from('participants')
+    .select('id')
+    .eq('tournament_id', tournamentId)
+    .eq('user_id', targetUser.id)
+    .single()
+
+  if (existingParticipant) {
+    throw new Error(`User "${username}" is already participating in this tournament`)
+  }
+
+  const participantData: ParticipantInsert = {
+    tournament_id: tournamentId,
+    user_id: targetUser.id,
+  }
+
+  const { error } = await supabase
+    .from('participants')
+    .insert(participantData)
+
+  if (error) {
+    throw new Error(`Failed to add participant: ${error.message}`)
+  }
+
+  revalidatePath(`/dashboard/tournaments/${tournamentId}`)
+  return { success: true, message: `Successfully added "${username}" to the tournament` }
+}
+
 export async function getParticipants(tournamentId: string) {
   const supabase = await createClient()
   
