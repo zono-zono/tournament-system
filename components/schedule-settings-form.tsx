@@ -50,6 +50,11 @@ export function ScheduleSettingsForm({ initialSettings, onSettingsChange }: Sche
     const start = new Date(`2000-01-01T${startTime}:00`);
     const end = new Date(`2000-01-01T${endTime}:00`);
     
+    // If end time is earlier than start time, it crosses midnight
+    if (end < start) {
+      end.setDate(end.getDate() + 1);
+    }
+    
     let current = new Date(start);
     while (current < end) {
       slots.push(current.toTimeString().slice(0, 5));
