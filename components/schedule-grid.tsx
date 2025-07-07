@@ -6,22 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, GripVertical } from "lucide-react";
 import { CSS } from "@dnd-kit/utilities";
 
+interface Match {
+  id: string;
+  tournament_id: string;
+  round_number: number;
+  match_number_in_round: number;
+  player1_id?: string;
+  player1_name?: string;
+  player1?: { username: string };
+  player2_id?: string;
+  player2_name?: string;
+  player2?: { username: string };
+  status: 'scheduled' | 'in_progress' | 'completed';
+  scheduled_time?: string;
+  venue?: string;
+}
+
 interface ScheduleSlot {
   timeSlot: string;
   court: string;
-  match?: any;
+  match?: Match;
 }
 
 interface ScheduleGridProps {
   timeSlots: string[];
   courts: string[];
-  matches: any[];
+  matches: Match[];
   onMatchDrop?: (matchId: string, timeSlot: string, court: string) => void;
   isOrganizer?: boolean;
 }
 
 // スケジュール済み試合のドラッグ可能カード
-function ScheduledMatchCard({ match, isOrganizer }: { match: any; isOrganizer?: boolean }) {
+function ScheduledMatchCard({ match, isOrganizer }: { match: Match; isOrganizer?: boolean }) {
   const {
     attributes,
     listeners,
@@ -86,7 +102,7 @@ function DroppableSlot({
 }: {
   timeSlot: string;
   court: string;
-  match?: any;
+  match?: Match;
   onMatchDrop?: (matchId: string, timeSlot: string, court: string) => void;
   isOrganizer?: boolean;
 }) {
@@ -101,14 +117,16 @@ function DroppableSlot({
     }
   });
 
-  console.log('🎯 DroppableSlot 作成:', {
-    slotId,
-    timeSlot,
-    court,
-    isOrganizer,
-    disabled: !isOrganizer,
-    isOver
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎯 DroppableSlot 作成:', {
+      slotId,
+      timeSlot,
+      court,
+      isOrganizer,
+      disabled: !isOrganizer,
+      isOver
+    });
+  }
 
   const hasMatch = !!match;
   const isConflict = false; // TODO: 実装する
@@ -155,11 +173,13 @@ export function ScheduleGrid({
     match.scheduled_time && match.venue
   );
   
-  console.log('ScheduleGrid データ:', {
-    totalMatches: matches.length,
-    scheduledMatches: scheduledMatches.length,
-    sampleScheduledMatch: scheduledMatches[0] || null
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('ScheduleGrid データ:', {
+      totalMatches: matches.length,
+      scheduledMatches: scheduledMatches.length,
+      sampleScheduledMatch: scheduledMatches[0] || null
+    });
+  }
 
   // 試合をスケジュールスロットにマッピング
   const getMatchForSlot = (timeSlot: string, court: string) => {
@@ -177,7 +197,7 @@ export function ScheduleGrid({
       return timeMatch && venueMatch;
     });
     
-    if (foundMatch) {
+    if (foundMatch && process.env.NODE_ENV === 'development') {
       console.log('マッチ発見:', { 
         timeSlot, 
         court, 

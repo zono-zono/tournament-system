@@ -1,8 +1,14 @@
 // ユーザーテーブルのデバッグ用スクリプト
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = "https://kldspkowaezkyiqwdsht.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZHNwa293YWV6a3lpcXdkc2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNzc1MTEsImV4cCI6MjA2Njg1MzUxMX0.VB4C2BeC8iIVNaEDhDNTYqL3At1MgEkTJGGOSDxZVE0";
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+// Environment variables validation
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ 環境変数が設定されていません。SUPABASE_URL と SUPABASE_ANON_KEY を設定してください。');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

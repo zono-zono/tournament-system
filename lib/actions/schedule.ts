@@ -14,21 +14,29 @@ export async function updateMatchSchedule(
     venue?: string | null
   }
 ) {
-  console.log('1. updateMatchSchedule called with:', { matchId, updates });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('1. updateMatchSchedule called with:', { matchId, updates });
+  }
   const supabase = await createClient()
 
   try {
     // 現在のユーザーを取得
-    console.log('2. Getting user...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('2. Getting user...');
+    }
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       console.error('User fetch error:', userError);
       throw new Error('認証されていません')
     }
-    console.log('3. User found:', user.id);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('3. User found:', user.id);
+    }
 
     // 試合の取得とトーナメント主催者の確認
-    console.log('4. Fetching match and tournament organizer...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('4. Fetching match and tournament organizer...');
+    }
     const { data: match, error: matchError } = await supabase
       .from('matches')
       .select(`
@@ -44,17 +52,23 @@ export async function updateMatchSchedule(
       console.error('Match fetch error:', matchError);
       throw new Error('試合が見つかりません')
     }
-    console.log('5. Match data:', match);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('5. Match data:', match);
+    }
 
     // 主催者のみが編集可能
     if (match.tournaments.organizer_id !== user.id) {
       console.error('Authorization error: Organizer ID does not match User ID');
       throw new Error('この操作を実行する権限がありません')
     }
-    console.log('6. Authorization successful.');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('6. Authorization successful.');
+    }
 
     // 試合スケジュールの更新
-    console.log('7. Updating match schedule...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('7. Updating match schedule...');
+    }
     const { error: updateError } = await supabase
       .from('matches')
       .update({
@@ -69,7 +83,9 @@ export async function updateMatchSchedule(
       console.error('DB update error:', updateError);
       throw new Error('スケジュールの更新に失敗しました')
     }
-    console.log('8. Match schedule updated successfully.');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('8. Match schedule updated successfully.');
+    }
 
     // キャッシュを更新
     revalidatePath('/tournaments/[id]', 'page')

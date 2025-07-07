@@ -211,6 +211,12 @@ export class ScheduleOptimizer {
    * 時間文字列からDateTimeを作成
    */
   private createDateTime(timeSlot: string): string {
+    // timeSlotの形式を検証 (HH:MM)
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(timeSlot)) {
+      throw new Error(`Invalid time format: ${timeSlot}. Expected format: HH:MM`);
+    }
+    
     return `${this.config.startDate}T${timeSlot}:00`;
   }
 }
