@@ -22,15 +22,8 @@ type Tournament = {
   id: string;
   name: string;
   description: string | null;
-  status: "draft" | "published" | "ongoing" | "completed" | "cancelled";
+  status: "draft" | "ongoing" | "completed" | "cancelled";
   start_date: string | null;
-  end_date: string | null;
-  entry_start: string | null;
-  entry_end: string | null;
-  max_participants: number | null;
-  min_participants: number;
-  entry_fee: number;
-  venue: string | null;
 };
 
 interface EditTournamentFormProps {
@@ -50,13 +43,6 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
     name: initialTournament?.name || "",
     description: initialTournament?.description || "",
     start_date: initialTournament?.start_date?.split('T')[0] || "",
-    end_date: initialTournament?.end_date?.split('T')[0] || "",
-    entry_start: initialTournament?.entry_start?.split('T')[0] || "",
-    entry_end: initialTournament?.entry_end?.split('T')[0] || "",
-    max_participants: initialTournament?.max_participants?.toString() || "",
-    min_participants: initialTournament?.min_participants?.toString() || "2",
-    entry_fee: initialTournament?.entry_fee?.toString() || "0",
-    venue: initialTournament?.venue || "",
     status: initialTournament?.status || "draft" as const,
   });
 
@@ -93,13 +79,6 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
         name: tournament.name,
         description: tournament.description || "",
         start_date: tournament.start_date?.split('T')[0] || "",
-        end_date: tournament.end_date?.split('T')[0] || "",
-        entry_start: tournament.entry_start?.split('T')[0] || "",
-        entry_end: tournament.entry_end?.split('T')[0] || "",
-        max_participants: tournament.max_participants?.toString() || "",
-        min_participants: tournament.min_participants?.toString() || "2",
-        entry_fee: tournament.entry_fee?.toString() || "0",
-        venue: tournament.venue || "",
         status: tournament.status,
       });
     } catch (err) {
@@ -118,30 +97,40 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
     try {
       const supabase = createClient();
       
-      const { error } = await supabase
+      console.log("1. Attempting to update tournament:", {
+        tournamentId,
+        formData,
+        updateData: {
+          name: formData.name,
+          description: formData.description || null,
+          start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
+          status: formData.status,
+          updated_at: new Date().toISOString(),
+        }
+      });
+
+      const { data, error } = await supabase
         .from("tournaments")
         .update({
           name: formData.name,
           description: formData.description || null,
           start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
-          end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
-          entry_start: formData.entry_start ? new Date(formData.entry_start).toISOString() : null,
-          entry_end: formData.entry_end ? new Date(formData.entry_end).toISOString() : null,
-          max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
-          min_participants: parseInt(formData.min_participants),
-          entry_fee: parseInt(formData.entry_fee),
-          venue: formData.venue || null,
           status: formData.status,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", tournamentId);
+        .eq("id", tournamentId)
+        .select();
+
+      console.log("2. Supabase update result:", { data, error });
 
       if (error) {
         setError("大会の更新に失敗しました");
         console.error("Error updating tournament:", error);
+        console.error("Error details:", JSON.stringify(error, null, 2));
         return;
       }
 
+      console.log("3. Tournament updated successfully");
       // 成功時にダッシュボードにリダイレクト
       router.push(`/dashboard/tournaments/${tournamentId}`);
     } catch (err) {
@@ -238,95 +227,13 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="start_date">開始日</Label>
-                  <Input
-                    id="start_date"
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="end_date">終了日</Label>
-                  <Input
-                    id="end_date"
-                    type="date"
-                    value={formData.end_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="entry_start">エントリー開始日</Label>
-                  <Input
-                    id="entry_start"
-                    type="date"
-                    value={formData.entry_start}
-                    onChange={(e) => setFormData(prev => ({ ...prev, entry_start: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="entry_end">エントリー終了日</Label>
-                  <Input
-                    id="entry_end"
-                    type="date"
-                    value={formData.entry_end}
-                    onChange={(e) => setFormData(prev => ({ ...prev, entry_end: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="min_participants">最小参加者数 *</Label>
-                  <Input
-                    id="min_participants"
-                    type="number"
-                    min="2"
-                    value={formData.min_participants}
-                    onChange={(e) => setFormData(prev => ({ ...prev, min_participants: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="max_participants">最大参加者数</Label>
-                  <Input
-                    id="max_participants"
-                    type="number"
-                    min="2"
-                    value={formData.max_participants}
-                    onChange={(e) => setFormData(prev => ({ ...prev, max_participants: e.target.value }))}
-                    placeholder="制限なし"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="entry_fee">参加費 (円)</Label>
-                  <Input
-                    id="entry_fee"
-                    type="number"
-                    min="0"
-                    value={formData.entry_fee}
-                    onChange={(e) => setFormData(prev => ({ ...prev, entry_fee: e.target.value }))}
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="venue">会場</Label>
+                <Label htmlFor="start_date">開始日</Label>
                 <Input
-                  id="venue"
-                  type="text"
-                  value={formData.venue}
-                  onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-                  placeholder="会場名・住所"
+                  id="start_date"
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
                 />
               </div>
 
@@ -337,7 +244,7 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
                   onValueChange={(value) => 
                     setFormData(prev => ({ 
                       ...prev, 
-                      status: value as "draft" | "published" | "ongoing" | "completed" | "cancelled"
+                      status: value as "draft" | "ongoing" | "completed" | "cancelled"
                     }))
                   }
                 >
@@ -346,7 +253,6 @@ export default function EditTournamentForm({ tournamentId, initialTournament }: 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">下書き</SelectItem>
-                    <SelectItem value="published">公開</SelectItem>
                     <SelectItem value="ongoing">進行中</SelectItem>
                     <SelectItem value="completed">完了</SelectItem>
                     <SelectItem value="cancelled">中止</SelectItem>

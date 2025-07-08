@@ -7,17 +7,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentBracketManager } from "@/components/tournament-bracket-manager";
 import { TournamentProgress } from "@/components/tournament-progress";
+import { getMatchesWithSchedule } from "@/lib/actions/schedule";
 import { 
   Trophy, 
   Users, 
   Calendar, 
   Edit, 
-  Settings, 
   ArrowLeft,
-  Play,
-  Square
+  Play
 } from "lucide-react";
 import Link from "next/link";
+
+import { TournamentScheduleBoard } from "@/components/tournament-schedule-board";
+import { TournamentScheduleWrapper } from "@/components/tournament-schedule-wrapper";
+import { AddParticipantForm } from "@/components/add-participant-form";
 
 export const runtime = 'edge';
 
@@ -28,6 +31,7 @@ type Tournament = {
   status: "draft" | "ongoing" | "completed" | "cancelled";
   start_date: string | null;
   created_at: string;
+  organizer_id: string;
   organizer: { username: string | null } | null;
   participants: Array<{
     id: string;
@@ -66,12 +70,14 @@ function formatDate(dateString: string | null) {
 }
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function TournamentDetailPage({ params }: Props) {
+  const { id } = await params;
   let tournament: Tournament | null = null;
   let matches: any[] = [];
+  let matchesWithSchedule: any[] = [];
   let error: string | null = null;
   let isOrganizer = false;
 
@@ -79,17 +85,41 @@ export default async function TournamentDetailPage({ params }: Props) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
-    tournament = await getTournament(params.id) as Tournament;
+    tournament = await getTournament(id) as Tournament;
     
-    if (user && tournament.organizer?.username === user.email?.split('@')[0]) {
+    console.log('Organizer check:', {
+      user: user ? { id: user.id, email: user.email } : null,
+      tournament_organizer: tournament.organizer,
+      userEmailPrefix: user?.email?.split('@')[0],
+      comparison: tournament.organizer?.username === user?.email?.split('@')[0]
+    });
+    
+    // Check if user is organizer using both methods
+    const isOrganizerByUsername = user && tournament.organizer?.username === user.email?.split('@')[0];
+    const isOrganizerById = user && tournament.organizer_id === user.id;
+    
+    console.log('Organizer check methods:', {
+      isOrganizerByUsername,
+      isOrganizerById,
+      tournament_organizer_id: tournament.organizer_id
+    });
+    
+    if (isOrganizerByUsername || isOrganizerById) {
       isOrganizer = true;
     }
 
     try {
-      matches = await getMatches(params.id);
+      matches = await getMatches(id);
+      
+      // スケジュール情報付きの試合データを取得
+      const scheduleResult = await getMatchesWithSchedule(id);
+      if (scheduleResult.success) {
+        matchesWithSchedule = scheduleResult.matches;
+      }
     } catch (matchError) {
       // Matches might not exist yet, that's okay
       matches = [];
+      matchesWithSchedule = [];
     }
   } catch (e) {
     error = e instanceof Error ? e.message : "大会の取得に失敗しました";
@@ -192,10 +222,11 @@ export default async function TournamentDetailPage({ params }: Props) {
 
       {/* Detailed Information */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 text-xs md:text-sm">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 text-xs md:text-sm">
           <TabsTrigger value="overview">概要</TabsTrigger>
           <TabsTrigger value="participants">参加者</TabsTrigger>
           <TabsTrigger value="bracket">トーナメント表</TabsTrigger>
+          {matches.length > 0 && <TabsTrigger value="schedule">スケジュール</TabsTrigger>}
           {matches.length > 0 && <TabsTrigger value="progress">進行状況</TabsTrigger>}
         </TabsList>
 
@@ -235,36 +266,50 @@ export default async function TournamentDetailPage({ params }: Props) {
         </TabsContent>
 
         <TabsContent value="participants">
-          <Card>
-            <CardHeader>
-              <CardTitle>参加者一覧 ({tournament.participants.length}名)</CardTitle>
-              <CardDescription>
-                現在の参加者一覧です
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {tournament.participants.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">まだ参加者がいません</p>
-                </div>
-              ) : (
-                <div className="space-y-2 md:space-y-3">
-                  {tournament.participants.map((participant) => (
-                    <div key={participant.id} className="flex items-center justify-between p-2 md:p-3 border rounded-lg">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm md:text-base truncate">{participant.user?.username || "不明"}</p>
-                        {participant.seed && (
-                          <p className="text-xs md:text-sm text-muted-foreground">シード: {participant.seed}</p>
-                        )}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* 参加者追加フォーム */}
+            {isOrganizer && tournament.status === 'draft' && (
+              <AddParticipantForm 
+                tournamentId={tournament.id}
+                onParticipantAdded={() => {
+                  // ページをリロードして最新の参加者を表示
+                  window.location.reload()
+                }}
+              />
+            )}
+            
+            {/* 参加者一覧 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>参加者一覧 ({tournament.participants.length}名)</CardTitle>
+                <CardDescription>
+                  現在の参加者一覧です
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {tournament.participants.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">まだ参加者がいません</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 md:space-y-3">
+                    {tournament.participants.map((participant) => (
+                      <div key={participant.id} className="flex items-center justify-between p-2 md:p-3 border rounded-lg">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm md:text-base truncate">{participant.user?.username || "不明"}</p>
+                          {participant.seed && (
+                            <p className="text-xs md:text-sm text-muted-foreground">シード: {participant.seed}</p>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="text-xs flex-shrink-0">参加中</Badge>
                       </div>
-                      <Badge variant="outline" className="text-xs flex-shrink-0">参加中</Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="bracket">
@@ -277,7 +322,17 @@ export default async function TournamentDetailPage({ params }: Props) {
                     大会の対戦表と試合結果
                   </CardDescription>
                 </div>
-                {isOrganizer && matches.length === 0 && tournament.participants.length >= 2 && (
+{(() => {
+                  console.log('Tournament bracket button conditions:', {
+                    isOrganizer,
+                    matchesLength: matches.length,
+                    participantsLength: tournament.participants.length,
+                    tournamentStatus: tournament.status,
+                    shouldShow: isOrganizer && matches.length === 0 && tournament.participants.length >= 2 && tournament.status === 'draft'
+                  });
+                  return null;
+                })()}
+                {isOrganizer && matches.length === 0 && tournament.participants.length >= 2 && tournament.status === 'draft' && (
                   <form action={generateTournamentBracket.bind(null, tournament.id)}>
                     <Button type="submit">
                       <Play className="h-4 w-4 mr-2" />
@@ -295,6 +350,8 @@ export default async function TournamentDetailPage({ params }: Props) {
                   <p className="text-muted-foreground mb-4">
                     {tournament.participants.length < 2
                       ? "参加者が2名以上必要です"
+                      : tournament.status !== 'draft'
+                      ? "トーナメント表の生成は下書き状態の大会のみ可能です。大会編集でステータスを「下書き」に変更してください。"
                       : isOrganizer
                       ? "トーナメント表を生成してください"
                       : "主催者がトーナメント表を生成するまでお待ちください"
@@ -310,6 +367,13 @@ export default async function TournamentDetailPage({ params }: Props) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="schedule">
+          <TournamentScheduleWrapper 
+            matches={matchesWithSchedule}
+            isOrganizer={isOrganizer}
+          />
         </TabsContent>
 
         <TabsContent value="progress">

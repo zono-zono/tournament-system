@@ -87,6 +87,9 @@ export interface Database {
           winner_id: string | null
           status: 'scheduled' | 'in_progress' | 'completed'
           next_match_id: string | null
+          scheduled_time: string | null
+          scheduled_date: string | null
+          venue: string | null
           created_at: string
           updated_at: string
         }
@@ -100,6 +103,9 @@ export interface Database {
           winner_id?: string | null
           status?: 'scheduled' | 'in_progress' | 'completed'
           next_match_id?: string | null
+          scheduled_time?: string | null
+          scheduled_date?: string | null
+          venue?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -113,6 +119,9 @@ export interface Database {
           winner_id?: string | null
           status?: 'scheduled' | 'in_progress' | 'completed'
           next_match_id?: string | null
+          scheduled_time?: string | null
+          scheduled_date?: string | null
+          venue?: string | null
           created_at?: string
           updated_at?: string
         }

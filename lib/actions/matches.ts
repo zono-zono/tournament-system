@@ -51,10 +51,19 @@ export async function generateTournamentBracket(tournamentId: string) {
   // Generate single elimination bracket
   const matches = generateSingleEliminationMatches(participants, tournamentId)
   
-  // Insert matches
+  // Insert matches (temporarily remove next_match_id for debugging)
+  console.log('Attempting to insert matches:', matches.map(m => Object.keys(m)));
+  
+  const matchesWithoutNextId = matches.map(match => {
+    const { next_match_id, ...matchData } = match;
+    return matchData;
+  });
+  
+  console.log('Inserting matches without next_match_id:', matchesWithoutNextId);
+  
   const { error } = await supabase
     .from('matches')
-    .insert(matches)
+    .insert(matchesWithoutNextId)
 
   if (error) {
     throw new Error(`Failed to generate bracket: ${error.message}`)

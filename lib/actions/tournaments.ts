@@ -48,17 +48,22 @@ export async function createTournament(formData: FormData) {
 }
 
 export async function updateTournament(id: string, formData: FormData) {
+  console.log('1. updateTournament called with id:', id);
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    console.error('User authentication error:', userError);
     throw new Error('Authentication required')
   }
+  console.log('2. User authenticated:', user.id);
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const start_date = formData.get('start_date') as string
   const status = formData.get('status') as 'draft' | 'ongoing' | 'completed' | 'cancelled'
+
+  console.log('3. Form data:', { name, description, start_date, status });
 
   const updateData: TournamentUpdate = {
     name: name || undefined,
@@ -67,15 +72,38 @@ export async function updateTournament(id: string, formData: FormData) {
     status: status || undefined
   }
 
+  console.log('4. Update data:', updateData);
+
+  // Check if user is the organizer
+  const { data: tournament, error: fetchError } = await supabase
+    .from('tournaments')
+    .select('organizer_id')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching tournament:', fetchError);
+    throw new Error(`Tournament not found: ${fetchError.message}`)
+  }
+
+  if (tournament.organizer_id !== user.id) {
+    console.error('Authorization error: user is not organizer');
+    throw new Error('Only the organizer can update this tournament')
+  }
+
+  console.log('5. Authorization successful');
+
   const { error } = await supabase
     .from('tournaments')
     .update(updateData)
     .eq('id', id)
-    .eq('organizer_id', user.id)
 
   if (error) {
+    console.error('Update error:', error);
     throw new Error(`Failed to update tournament: ${error.message}`)
   }
+
+  console.log('6. Tournament updated successfully');
 
   revalidatePath('/dashboard/tournaments')
   revalidatePath(`/dashboard/tournaments/${id}`)
@@ -112,7 +140,12 @@ export async function getTournaments() {
     .from('tournaments')
     .select(`
       *,
-      organizer:users!tournaments_organizer_id_fkey(username)
+      organizer:users!tournaments_organizer_id_fkey(username),
+      participants(
+        id,
+        seed,
+        user:users!participants_user_id_fkey(username)
+      )
     `)
     .order('created_at', { ascending: false })
 
